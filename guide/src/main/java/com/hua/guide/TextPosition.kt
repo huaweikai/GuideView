@@ -40,7 +40,6 @@ sealed class TextPosition(
             val targetRectBounds = getTextRectBounds()
             val diff = targetBounds.top - targetRectBounds.top
             val bounds = calculateAnimateStartBound(targetRectBounds, targetBounds, textRectF, this)
-            textRectF.set(bounds)
             return ValueAnimator.ofFloat(0f, diff).apply {
                 duration = 100
                 interpolator = AccelerateDecelerateInterpolator()
@@ -167,16 +166,16 @@ sealed class TextPosition(
             rectF.inset(-diffWidth / 2, -diffHeight / 2)
             when (position) {
                 is Left -> {
-                    rectF.left -= diffWidth / 2
-                    rectF.right -= diffWidth / 2
+                    rectF.left += diffWidth / 2
+                    rectF.right += diffWidth / 2
                 }
                 is Right -> {
                     rectF.left += diffWidth / 2
                     rectF.right += diffWidth / 2
                 }
                 is Top -> {
-                    rectF.top -= diffHeight / 2
-                    rectF.bottom -= diffHeight / 2
+                    rectF.top += diffHeight / 2
+                    rectF.bottom += diffHeight / 2
                 }
                 is Bottom -> {
                     rectF.top += diffHeight / 2

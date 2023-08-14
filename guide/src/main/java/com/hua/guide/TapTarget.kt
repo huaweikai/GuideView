@@ -102,6 +102,14 @@ class TapTarget {
 
     private var _descriptionTextSize: Int? = null
 
+    internal var textPadding = 8.dp
+
+    internal var pulseWidth = 1.dp
+
+    internal var textMarginTarget = 16.dp
+
+    internal var titleMarginDesc = 8.dp
+
 
     fun setGuideWidth(width: Int): TapTarget {
         this.guideWidth = width
@@ -150,6 +158,26 @@ class TapTarget {
 
     fun setPulseAnimationStatus(status: Boolean): TapTarget {
         this.openPulseAnimation = status
+        return this
+    }
+
+    fun setTextPadding(padding: Int): TapTarget {
+        this.textPadding = padding
+        return this
+    }
+
+    fun setPulseWidth(width: Int): TapTarget {
+        this.pulseWidth = width
+        return this
+    }
+
+    fun setTextMarginTarget(margin: Int): TapTarget {
+        this.textMarginTarget = margin
+        return this
+    }
+
+    fun setTitleMarginDesc(margin: Int): TapTarget {
+        this.titleMarginDesc = margin
         return this
     }
 

@@ -23,7 +23,7 @@ val wrapTextWidth: Int
 
 val screenStatus: ScreenStatus
     get() {
-        val smallWidth = Resources.getSystem().configuration.smallestScreenWidthDp
+        val smallWidth = Resources.getSystem().configuration.screenWidthDp
         return when {
             smallWidth >= 720 -> ScreenStatus.Large
             smallWidth >= 600 -> ScreenStatus.Medium

@@ -24,7 +24,7 @@ import kotlin.math.roundToInt
 @SuppressLint("ViewConstructor")
 class GuideView @JvmOverloads constructor(
     context: Context,
-    private val tapTarget: TapTarget,
+    internal val tapTarget: TapTarget,
     private val parent: ViewManager? = null
 ) : View(context), View.OnClickListener {
 
@@ -59,13 +59,13 @@ class GuideView @JvmOverloads constructor(
 
     private val shadowPulseBounds = RectF()
 
-    private val pulseWidth = 1.dp
+    private val pulseWidth get() = tapTarget.pulseWidth
 
     private val shadowTargetBounds = RectF()
 
-    private val textPadding = 8.dp
+    private val textPadding get() =  tapTarget.textPadding
 
-    private val textMarginIcon = 16.dp + tapTarget.shadowWidth
+    private val textMarginIcon get() = tapTarget.textMarginTarget + tapTarget.shadowWidth
 
     private val textRectBounds = RectF()
 
@@ -191,7 +191,7 @@ class GuideView @JvmOverloads constructor(
             canvas.translate(textRectBounds.left + textPadding, textRectBounds.top + textPadding)
             titleLayout?.draw(canvas)
             descriptionLayout?.let {
-                canvas.translate(0f, ((titleLayout?.height ?: 0) + 8.dp).toFloat())
+                canvas.translate(0f, ((titleLayout?.height ?: 0) + tapTarget.titleMarginDesc).toFloat())
                 it.draw(canvas)
             }
         }
@@ -244,11 +244,13 @@ class GuideView @JvmOverloads constructor(
 
     fun getRealView(): View? = tapTarget.view
 
+    val cancelable: Boolean get() = tapTarget.cancelable
+
     private val textHeight: Int
         get() {
             val titleLayout = this.titleLayout ?: return 0
             val descLayout = this.descriptionLayout ?: return titleLayout.height
-            return titleLayout.height + descLayout.height
+            return titleLayout.height + descLayout.height + tapTarget.titleMarginDesc
         }
 
     private val textWidth: Int
