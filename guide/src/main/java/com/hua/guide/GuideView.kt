@@ -23,7 +23,7 @@ class GuideView @JvmOverloads constructor(
     context: Context,
     private val tapTarget: TapTarget,
     private val parent: ViewManager? = null
-) : View(context) {
+) : View(context), View.OnClickListener {
 
     private val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
         initTapTarget()
@@ -31,8 +31,18 @@ class GuideView @JvmOverloads constructor(
 
     init {
         viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
-        super.setOnClickListener {
-            dismiss()
+        super.setOnClickListener(this)
+    }
+
+    override fun onClick(v: View?) {
+        if (clickTarget()) {
+            tapTarget.listener?.clickTarget(this)
+            return
+        }
+        if (tapTarget.cancelable) {
+            tapTarget.listener?.dismiss(this)
+        } else {
+            tapTarget.listener?.clickOther(this)
         }
     }
 
@@ -135,6 +145,10 @@ class GuideView @JvmOverloads constructor(
 
     override fun setOnClickListener(l: OnClickListener?) {}
 
+    private fun clickTarget(): Boolean {
+        return staticTargetBounds.contains(lastTouchX, lastTouchY)
+    }
+
     fun dismiss() {
         viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
         parent?.removeView(this)
@@ -172,6 +186,8 @@ class GuideView @JvmOverloads constructor(
         alpha = 100
         strokeWidth = tapTarget.shadowWidth.toFloat()
     }
+
+    fun getRealView(): View? = tapTarget.view
 
     private val textHeight: Int
         get() {

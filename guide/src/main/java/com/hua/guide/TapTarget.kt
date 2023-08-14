@@ -12,12 +12,12 @@ import androidx.core.view.drawToBitmap
 
 class TapTarget {
 
-    private var view: View? = null
+    internal var view: View? = null
 
     val title: CharSequence
     val description: CharSequence?
     internal var bounds: Rect = Rect()
-    var icon: Drawable? = null
+    private var icon: Drawable? = null
 
     @JvmOverloads
     constructor(
@@ -84,11 +84,11 @@ class TapTarget {
 
     private var _shadowColor: Int? = null
 
-    internal var listener: GuideListener? = null
+    internal var listener: GuideListener? = object :GuideListener {}
 
     internal var targetPadding = 4.dp
 
-    internal var textWidth = screenWidth / 3
+    internal var textWidth = wrapTextWidth
 
     internal var cancelable: Boolean = true
 
@@ -136,6 +136,11 @@ class TapTarget {
 
     fun setTapRadius(radius: Float): TapTarget {
         this.radius = radius
+        return this
+    }
+
+    fun setCancelable(cancelable: Boolean): TapTarget {
+        this.cancelable = cancelable
         return this
     }
 

@@ -1,147 +1,111 @@
 package com.hua.guide
 
-import android.animation.ValueAnimator
+
 import android.graphics.RectF
-import android.view.animation.DecelerateInterpolator
+
+internal var edgeLength = 8.dp
 
 // 优先放在右边，优先放在下面
-sealed class TextPosition {
-    val rectF = RectF()
-    class Top : TextPosition() {
-        override fun fromBounds(rect: RectF, margin: Int, width: Int, height: Int): RectF {
-            val left = rect.centerX() - width / 2
+sealed class TextPosition(
+    val targetBounds: RectF,
+    textPadding: Int,
+    val marginTarget: Int,
+    textWidth: Int,
+    textHeight: Int
+) {
+
+    val height = textHeight + textPadding * 2
+    val width = textWidth + textPadding * 2
+
+    class Top(
+        targetBounds: RectF,
+        textPadding: Int,
+        marginTarget: Int,
+        textWidth: Int,
+        textHeight: Int
+    ): TextPosition(targetBounds, textPadding, marginTarget, textWidth, textHeight) {
+        override fun fromBounds(): RectF {
+            val left = targetBounds.centerX() - width / 2
             val right = left + width
-            val top = rect.top - height - margin
+            val top = targetBounds.top - height - marginTarget
             val bottom = top + height
             return RectF(left, top, right, bottom)
         }
-        override fun textAnimation(bounds: RectF, margin: Int, height: Int, width: Int): ValueAnimator {
-            rectF.set(fromBounds(bounds, margin, height, width))
-            val animateHeight = bounds.top - rectF.top
-            return ValueAnimator.ofFloat(0f, animateHeight).apply {
-                duration = animationDuration
-                interpolator = animationInterpolator
-            }
-        }
-
-        override fun disposeAnimation(rect: RectF, currentValue: Float) {
-            rect.top = this.rectF.top - currentValue
-            rect.bottom = this.rectF.bottom - currentValue
-        }
     }
-    class Bottom: TextPosition() {
-        override fun fromBounds(rect: RectF, margin: Int, width: Int, height: Int): RectF {
-            val left = rect.centerX() - width / 2
+    class Bottom(
+        targetBounds: RectF,
+        textPadding: Int,
+        marginTarget: Int,
+        textWidth: Int,
+        textHeight: Int
+    ): TextPosition(targetBounds, textPadding, marginTarget, textWidth, textHeight) {
+        override fun fromBounds(): RectF {
+            val left = targetBounds.centerX() - width / 2
             val right = left + width
-            val top = rect.bottom + margin
+            val top = targetBounds.bottom + marginTarget
             val bottom = top + height
             return RectF(left, top, right, bottom)
         }
-        override fun textAnimation(bounds: RectF, margin: Int, height: Int, width: Int): ValueAnimator {
-            rectF.set(fromBounds(bounds, margin, height, width))
-            val animateHeight = rectF.bottom - bounds.bottom
-            return ValueAnimator.ofFloat(0f, animateHeight).apply {
-                duration = animationDuration
-                interpolator = animationInterpolator
-            }
-        }
-        override fun disposeAnimation(rect: RectF, currentValue: Float) {
-            rect.top = this.rectF.top + currentValue
-            rect.bottom = this.rectF.bottom + currentValue
-        }
     }
-    class Left: TextPosition() {
-        override fun fromBounds(rect: RectF, margin: Int, width: Int, height: Int): RectF {
-            val left = rect.left - width - margin
+    class Left(
+        targetBounds: RectF,
+        textPadding: Int,
+        marginTarget: Int,
+        textWidth: Int,
+        textHeight: Int
+    ): TextPosition(targetBounds, textPadding, marginTarget, textWidth, textHeight) {
+        override fun fromBounds(): RectF {
+            val left = targetBounds.left - width - marginTarget
             val right = left + width
-            val top = rect.centerY() - height / 2
+            val top = targetBounds.centerY() - height / 2
             val bottom = top + height
             return RectF(left, top, right, bottom)
         }
-        override fun textAnimation(bounds: RectF, margin: Int, height: Int, width: Int): ValueAnimator {
-            rectF.set(fromBounds(bounds, margin, height, width))
-            val animateWidth = rectF.left - bounds.left
-            return ValueAnimator.ofFloat(0f, animateWidth).apply {
-                duration = animationDuration
-                interpolator = animationInterpolator
-            }
-        }
-        override fun disposeAnimation(rect: RectF, currentValue: Float) {
-            rect.right = this.rectF.right - currentValue
-            rect.left = this.rectF.left - currentValue
-        }
     }
-    class Right: TextPosition() {
-        override fun fromBounds(rect: RectF, margin: Int, width: Int, height: Int): RectF {
-            val left = rect.right + margin
+    class Right(
+        targetBounds: RectF,
+        textPadding: Int,
+        marginTarget: Int,
+        textWidth: Int,
+        textHeight: Int
+    ): TextPosition(targetBounds, textPadding, marginTarget, textWidth, textHeight) {
+        override fun fromBounds(): RectF {
+            val left = targetBounds.right + marginTarget
             val right = left + width
-            val top = rect.centerY() - height / 2
+            val top = targetBounds.centerY() -  height / 2
             val bottom = top + height
             return RectF(left, top, right, bottom)
         }
-
-        override fun textAnimation(bounds: RectF, margin: Int, height: Int, width: Int): ValueAnimator {
-            rectF.set(fromBounds(bounds, margin, height, width))
-            val animateWidth = rectF.right - bounds.right
-            return ValueAnimator.ofFloat(0f, animateWidth).apply {
-                duration = animationDuration
-                interpolator = animationInterpolator
-            }
-        }
-
-        override fun disposeAnimation(rect: RectF, currentValue: Float) {
-            rect.right = this.rectF.right + currentValue
-            rect.left = this.rectF.left + currentValue
-        }
     }
-    object Empty: TextPosition() {
-        override fun fromBounds(rect: RectF, margin: Int, width: Int, height: Int): RectF {
-            return RectF()
-        }
+    object Empty: TextPosition(RectF(), 0, 0, 0, 0)
 
-        override fun textAnimation(bounds: RectF, margin: Int, height: Int, width: Int): ValueAnimator {
-            throw IllegalStateException("")
-        }
 
-        override fun disposeAnimation(rect: RectF, currentValue: Float) {}
-    }
-
-    val animationDuration = 300L
-
-    val animationInterpolator = DecelerateInterpolator()
-
-    abstract fun fromBounds(rect: RectF, margin: Int, width: Int, height: Int): RectF
-
-    abstract fun textAnimation(bounds: RectF, margin: Int,  height: Int, width: Int): ValueAnimator
-
-    abstract fun disposeAnimation(rect: RectF, currentValue: Float)
+    open fun fromBounds(): RectF = targetBounds
 
 }
 
 internal fun RectF.getTextBgPosition(
     textWidth: Int,
     textHeight: Int,
-    margin: Int,
+    textPadding: Int,
     marginIcon: Int
 ): RectF {
-    val textPadding = margin * 2
-    val widthFiller = textWidth + textPadding + marginIcon
-    val heightFiller = textHeight + textPadding + marginIcon
-    val position = getPosition(widthFiller, heightFiller)
-    return position.fromBounds(this, marginIcon, textWidth + textPadding, textHeight + textPadding)
+    val position = getPosition(textPadding, marginIcon, textWidth, textHeight)
+    return position.fromBounds()
 }
 
 // 优先放在右边，优先放在下面
 fun RectF.getPosition(
-    widthFiller: Int,
-    heightFiller: Int,
+    textPadding: Int,
+    marginTarget: Int,
+    textWidth: Int,
+    textHeight: Int
 ): TextPosition {
-    val edgeLength = 16.dp
-    val horizontalPosition = canDropHorizontal(edgeLength, widthFiller)
+    val horizontalPosition = canDropHorizontal(textPadding, marginTarget, textWidth, textHeight)
     if (horizontalPosition !is TextPosition.Empty) {
         return horizontalPosition
     }
-    val verticalPosition = canDropVertical(edgeLength, heightFiller)
+    val verticalPosition = canDropVertical(textPadding, marginTarget, textWidth, textHeight)
     if (verticalPosition is TextPosition.Empty) {
         throw IllegalStateException("can not find a position to drop text")
     }
@@ -150,30 +114,36 @@ fun RectF.getPosition(
 
 
 private fun RectF.canDropHorizontal(
-    edgeLength: Int,
-    widthFiller: Int
+    textPadding: Int,
+    marginTarget: Int,
+    textWidth: Int,
+    textHeight: Int
 ): TextPosition {
+    val widthFiller = textWidth + textPadding * 2 + marginTarget
     if (top - edgeLength < 0 || bottom + edgeLength > screenHeight) {
         return TextPosition.Empty
     }
     if (right + widthFiller < screenWidth) {
-        return TextPosition.Right()
+        return TextPosition.Right(this, textPadding, marginTarget, textWidth, textHeight)
     }
     if (left - widthFiller > 0) {
-        return TextPosition.Left()
+        return TextPosition.Left(this, textPadding, marginTarget, textWidth, textHeight)
     }
     return TextPosition.Empty
 }
 
 private fun RectF.canDropVertical(
-    edgeLength: Int,
-    heightFiller: Int
+    textPadding: Int,
+    marginTarget: Int,
+    textWidth: Int,
+    textHeight: Int
 ): TextPosition {
+    val heightFiller = textHeight + textPadding * 2 + marginTarget
     if (bottom + edgeLength + heightFiller < screenHeight) {
-        return TextPosition.Bottom()
+        return TextPosition.Bottom(this, textPadding, marginTarget, textWidth, textHeight)
     }
     if (top - edgeLength - heightFiller > 0) {
-        return TextPosition.Top()
+        return TextPosition.Top(this, textPadding, marginTarget, textWidth, textHeight)
     }
     return TextPosition.Empty
 }
