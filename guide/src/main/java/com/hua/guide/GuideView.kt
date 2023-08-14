@@ -1,5 +1,6 @@
 package com.hua.guide
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BlurMaskFilter
@@ -15,6 +16,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewManager
 import android.view.ViewTreeObserver
+import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.core.animation.doOnEnd
 import androidx.core.graphics.withSave
 import kotlin.math.roundToInt
 
@@ -52,9 +55,15 @@ class GuideView @JvmOverloads constructor(
 
     private val staticTargetBounds = RectF()
 
+    private val targetPulseBounds = RectF()
+
+    private val shadowPulseBounds = RectF()
+
+    private val pulseWidth = 1.dp
+
     private val shadowTargetBounds = RectF()
 
-    private val textPadding = 4.dp
+    private val textPadding = 8.dp
 
     private val textMarginIcon = 16.dp + tapTarget.shadowWidth
 
@@ -70,11 +79,55 @@ class GuideView @JvmOverloads constructor(
             if (tapTarget.targetPadding != 0) {
                 staticTargetBounds.inset(-tapTarget.targetPadding.toFloat(), -tapTarget.targetPadding.toFloat())
             }
+            targetPulseBounds.set(staticTargetBounds)
             shadowTargetBounds.set(staticTargetBounds)
             shadowTargetBounds.inset(-2.dp.toFloat(), -2.dp.toFloat())
-            textRectBounds.set(staticTargetBounds)
-            textRectBounds.set(textRectBounds.getTextBgPosition(textWidth, textHeight, textPadding, textMarginIcon))
+            shadowPulseBounds.set(shadowTargetBounds)
             invalidate()
+            textStartAnimation()
+        }
+    }
+
+    private var shouldDrawText = false
+
+    private var textShowAnimation: ValueAnimator? = null
+
+    private fun textStartAnimation() {
+        shouldDrawText = true
+        textRectBounds.set(staticTargetBounds)
+        val position = textRectBounds.getPosition(textPadding, textMarginIcon, textWidth, textHeight)
+        if (!tapTarget.showTextShowAnimation) {
+            textRectBounds.set(position.getTextRectBounds())
+            invalidate()
+            if (tapTarget.openPulseAnimation) startPulseAnimation()
+        } else {
+            textShowAnimation = position.getTextStartAnimation(textRectBounds)
+            textShowAnimation?.addUpdateListener {
+                invalidate()
+            }
+            textShowAnimation?.doOnEnd {
+                if (tapTarget.openPulseAnimation) startPulseAnimation()
+            }
+        }
+    }
+
+    private var pulseAnimation: ValueAnimator? = null
+
+    private fun startPulseAnimation() {
+        pulseAnimation = ValueAnimator.ofFloat(0f, 1f).apply {
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.REVERSE
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = 500
+            addUpdateListener {
+                targetPulseBounds.set(staticTargetBounds)
+                val currentWidth = pulseWidth * (it.animatedValue as Float)
+                targetPulseBounds.inset(-currentWidth, -currentWidth)
+                shadowPulseBounds.set(shadowTargetBounds)
+                shadowPulseBounds.inset(-currentWidth, -currentWidth)
+                invalidate()
+            }
+            start()
         }
     }
 
@@ -113,18 +166,19 @@ class GuideView @JvmOverloads constructor(
         super.onDraw(canvas)
         // 画tapTargetView
         canvas.drawRoundRect(
-            staticTargetBounds,
+            targetPulseBounds,
             tapTarget.radius,
             tapTarget.radius,
             guidePaint
         )
         // 画阴影
         canvas.drawRoundRect(
-            shadowTargetBounds,
+            shadowPulseBounds,
             tapTarget.radius,
             tapTarget.radius,
             shadowPaint
         )
+        if (!shouldDrawText) return
         // 画Text的背景
         canvas.drawRoundRect(
             textRectBounds,
@@ -150,6 +204,7 @@ class GuideView @JvmOverloads constructor(
     }
 
     fun dismiss() {
+        pulseAnimation?.cancel()
         viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
         parent?.removeView(this)
     }

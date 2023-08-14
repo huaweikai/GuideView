@@ -94,7 +94,11 @@ class TapTarget {
 
     internal var textSize = 12.sp
 
-    internal var radius: Float = 4.dp.toFloat()
+    internal var openPulseAnimation = true
+
+    internal var showTextShowAnimation = true
+
+    internal var radius: Float = 8.dp.toFloat()
 
     private var _descriptionTextSize: Int? = null
 
@@ -141,6 +145,11 @@ class TapTarget {
 
     fun setCancelable(cancelable: Boolean): TapTarget {
         this.cancelable = cancelable
+        return this
+    }
+
+    fun setPulseAnimationStatus(status: Boolean): TapTarget {
+        this.openPulseAnimation = status
         return this
     }
 
