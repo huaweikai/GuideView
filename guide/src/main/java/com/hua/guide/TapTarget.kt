@@ -110,6 +110,8 @@ class TapTarget {
 
     internal var titleMarginDesc = 8.dp
 
+    internal var shadowRadius = radius + 4.dp
+
 
     fun setGuideWidth(width: Int): TapTarget {
         this.guideWidth = width
@@ -178,6 +180,11 @@ class TapTarget {
 
     fun setTitleMarginDesc(margin: Int): TapTarget {
         this.titleMarginDesc = margin
+        return this
+    }
+
+    fun setShadowRadius(radius: Int): TapTarget {
+        this.shadowRadius = radius.toFloat()
         return this
     }
 

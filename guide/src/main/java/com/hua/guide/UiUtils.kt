@@ -8,7 +8,7 @@ import android.content.res.Resources
 import android.util.TypedValue
 import androidx.annotation.FloatRange
 
-internal val Int.dp get(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
+val Int.dp get(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
 internal val Float.dp get(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 

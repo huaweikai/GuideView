@@ -108,14 +108,21 @@ class GuideSequence: GuideListener {
         showNext()
     }
 
-    override fun dismiss(view: GuideView) {
-        super.dismiss(view)
+    override fun onDismiss() {
+        super.onDismiss()
         if (continueOnCancel) {
-            listener?.onSequenceStep(view.tapTarget, false)
+            listener?.onSequenceStep(currentView?.tapTarget, false)
             showNext()
         } else {
-            listener?.onSequenceCanceled(view.tapTarget)
+            listener?.onSequenceCanceled(currentView?.tapTarget)
         }
+    }
+
+    private fun dismiss(view: GuideView) {
+        view.dismiss()
+        isActive = false
+        targets.clear()
+        listener?.onSequenceCanceled(view.tapTarget)
     }
 
     override fun clickOther(view: GuideView) {

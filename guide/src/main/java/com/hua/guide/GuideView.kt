@@ -21,6 +21,7 @@ import androidx.core.animation.doOnEnd
 import androidx.core.graphics.withSave
 import kotlin.math.roundToInt
 
+
 @SuppressLint("ViewConstructor")
 class GuideView @JvmOverloads constructor(
     context: Context,
@@ -43,7 +44,7 @@ class GuideView @JvmOverloads constructor(
             return
         }
         if (tapTarget.cancelable) {
-            tapTarget.listener?.dismiss(this)
+            dismiss()
         } else {
             tapTarget.listener?.clickOther(this)
         }
@@ -92,6 +93,8 @@ class GuideView @JvmOverloads constructor(
 
     private var textShowAnimation: ValueAnimator? = null
 
+    private var position: TextPosition? = null
+
     private fun textStartAnimation() {
         shouldDrawText = true
         textRectBounds.set(staticTargetBounds)
@@ -109,6 +112,7 @@ class GuideView @JvmOverloads constructor(
                 if (tapTarget.openPulseAnimation) startPulseAnimation()
             }
         }
+        this.position = position
     }
 
     private var pulseAnimation: ValueAnimator? = null
@@ -174,8 +178,8 @@ class GuideView @JvmOverloads constructor(
         // 画阴影
         canvas.drawRoundRect(
             shadowPulseBounds,
-            tapTarget.radius,
-            tapTarget.radius,
+            tapTarget.shadowRadius,
+            tapTarget.shadowRadius,
             shadowPaint
         )
         if (!shouldDrawText) return
@@ -205,6 +209,11 @@ class GuideView @JvmOverloads constructor(
 
     fun dismiss() {
         pulseAnimation?.cancel()
+        removeFromParent()
+        tapTarget.listener?.onDismiss()
+    }
+
+    private fun removeFromParent() {
         viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
         parent?.removeView(this)
     }

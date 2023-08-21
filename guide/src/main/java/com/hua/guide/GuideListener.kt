@@ -10,8 +10,6 @@ interface GuideListener {
 
     fun clickOther(view: GuideView) {}
 
-    fun dismiss(view: GuideView) {
-        view.dismiss()
-    }
+    fun onDismiss() {}
 
 }

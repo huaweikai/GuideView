@@ -143,6 +143,7 @@ sealed class TextPosition(
             }
         }
     }
+
     object Empty: TextPosition(RectF(), 0, 0, 0, 0)
 
     open fun getTextRectBounds(): RectF = targetBounds

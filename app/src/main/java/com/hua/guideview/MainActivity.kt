@@ -2,10 +2,13 @@ package com.hua.guideview
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import com.hua.guide.GuideListener
 import com.hua.guide.GuideView
 import com.hua.guide.TapTarget
@@ -17,6 +20,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        (window.decorView as? ViewGroup)?.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+            override fun onChildViewRemoved(parent: View?, child: View?) {
+                Log.e("TAG", "onChildViewRemoved:  ${(parent as? ViewGroup)?.children?.joinToString(",")}")
+            }
+
+            override fun onChildViewAdded(parent: View?, child: View?) {
+                Log.e("TAG", "onChildViewAdded: ${(parent as? ViewGroup)?.children?.joinToString(",")}")
+            }
+        })
         var isShowGuide = false
         findViewById<View>(R.id.tv).setOnClickListener {
             isShowGuide = if (!isShowGuide) {
