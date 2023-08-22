@@ -9,8 +9,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
-import com.hua.guide.GuideListener
 import com.hua.guide.GuideView
+import com.hua.guide.PreformClickGuideListener
 import com.hua.guide.TapTarget
 import com.hua.guide.showGuideView
 
@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
                     "You canceled the sequence at step "
                 )
                     .setCancelable(false)
-                    .setGuideListener(object : GuideListener {
+                    .setGuideListener(object : PreformClickGuideListener() {
                         override fun clickTarget(view: GuideView) {
                             dialog.dismiss()
                             super.clickTarget(view)

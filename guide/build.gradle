@@ -1,7 +1,9 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
+    id 'maven-publish'
 }
+group = "com.huaweikai.guideview"
 
 android {
     namespace 'com.hua.guide'
@@ -29,8 +31,33 @@ android {
     }
 }
 
+afterEvaluate {
+    publishing {
+        publications {
+            guidePushlish(MavenPublication) {
+                artifact androidSourcesJar
+                groupId = 'com.huaweikai.guideview'
+                artifactId = 'guideview'
+                version = '1.0.0'
+                artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+            }
+        }
+        repositories {
+            maven {
+                url "file://${projectDir}/repo"
+            }
+        }
+    }
+}
+
+
 dependencies {
-    implementation libs.core.ktx
-    implementation libs.appcompat
-    implementation libs.material
+    api libs.core.ktx
+    api libs.appcompat
+    api libs.material
+}
+
+tasks.register('androidSourcesJar', Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
 }

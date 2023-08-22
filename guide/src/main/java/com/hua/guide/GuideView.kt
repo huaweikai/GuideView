@@ -149,7 +149,8 @@ class GuideView @JvmOverloads constructor(
     }
 
     private fun updateTextLayouts() {
-        val textWidth = width.coerceAtMost(tapTarget.textWidth)
+        val titleWidth = titlePaint.measureText(tapTarget.title.toString()).roundToInt()
+        val textWidth = titleWidth.coerceAtMost(tapTarget.textWidth)
         if (textWidth <= 0) return
         titleLayout = StaticLayout.Builder
             .obtain(tapTarget.title, 0, tapTarget.title.length, titlePaint, textWidth)

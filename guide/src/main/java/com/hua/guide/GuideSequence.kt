@@ -103,7 +103,7 @@ class GuideSequence: GuideListener {
     }
 
     override fun clickTarget(view: GuideView) {
-        super.clickTarget(view)
+        view.dismiss()
         listener?.onSequenceStep(view.tapTarget, true)
         showNext()
     }

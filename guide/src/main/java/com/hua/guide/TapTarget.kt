@@ -84,7 +84,7 @@ class TapTarget {
 
     private var _shadowColor: Int? = null
 
-    internal var listener: GuideListener? = object :GuideListener {}
+    internal var listener: GuideListener? = PreformClickGuideListener.INSTANCE
 
     internal var targetPadding = 4.dp
 

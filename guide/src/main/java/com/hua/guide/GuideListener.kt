@@ -3,13 +3,31 @@ package com.hua.guide
 
 interface GuideListener {
 
-    fun clickTarget(view: GuideView) {
+    fun clickTarget(view: GuideView)
+
+    fun clickOther(view: GuideView)
+
+    fun onDismiss() {}
+
+}
+
+open class PreformClickGuideListener : GuideListener {
+
+    companion object {
+        val INSTANCE = PreformClickGuideListener()
+    }
+
+    override fun clickTarget(view: GuideView) {
         view.getRealView()?.performClick()
         view.dismiss()
     }
 
-    fun clickOther(view: GuideView) {}
+    override fun clickOther(view: GuideView) {
+        if (view.cancelable) {
+            view.dismiss()
+        }
+    }
 
-    fun onDismiss() {}
+    override fun onDismiss() {}
 
 }
