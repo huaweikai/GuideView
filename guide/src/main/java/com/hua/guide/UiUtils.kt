@@ -31,7 +31,7 @@ internal fun Context.getThemeIneAttr(
 }
 
 fun Int.setAlpha(
-    @FloatRange(0.0, 1.0) alpha: Float
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float
 ): Int {
     return ((this ushr 24) * alpha).toInt() shl 24 or (this and 0x00FFFFFF)
 }
