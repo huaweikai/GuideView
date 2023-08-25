@@ -18,7 +18,9 @@ open class PreformClickGuideListener : GuideListener {
     }
 
     override fun clickTarget(view: GuideView) {
-        view.getRealView()?.performClick()
+        if (view.tapTarget.shouldPreformClick) {
+            view.getRealView()?.performClick()
+        }
         view.dismiss()
     }
 

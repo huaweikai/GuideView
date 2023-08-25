@@ -104,18 +104,8 @@ class GuideSequence: GuideListener {
 
     override fun clickTarget(view: GuideView) {
         view.dismiss()
-        listener?.onSequenceStep(view.tapTarget, true)
+        listener?.onSequenceStep(view.tapTarget, view, true)
         showNext()
-    }
-
-    override fun onDismiss() {
-        super.onDismiss()
-        if (continueOnCancel) {
-            listener?.onSequenceStep(currentView?.tapTarget, false)
-            showNext()
-        } else {
-            listener?.onSequenceCanceled(currentView?.tapTarget)
-        }
     }
 
     private fun dismiss(view: GuideView) {
@@ -140,7 +130,7 @@ class GuideSequence: GuideListener {
          * unless you have set [.continueOnCancel] and the user
          * clicks outside of the target
          */
-        fun onSequenceStep(lastTarget: TapTarget?, targetClicked: Boolean)
+        fun onSequenceStep(lastTarget: TapTarget?, guideView: GuideView?, targetClicked: Boolean)
 
         /**
          * Called when the user taps outside of the current target, the target is cancelable, and

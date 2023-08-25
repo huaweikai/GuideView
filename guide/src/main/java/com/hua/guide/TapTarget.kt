@@ -112,6 +112,8 @@ class TapTarget {
 
     internal var shadowRadius = radius + 4.dp
 
+    var shouldPreformClick = true
+        internal set
 
     fun setGuideWidth(width: Int): TapTarget {
         this.guideWidth = width
@@ -185,6 +187,11 @@ class TapTarget {
 
     fun setShadowRadius(radius: Int): TapTarget {
         this.shadowRadius = radius.toFloat()
+        return this
+    }
+
+    fun setShouldPreformClick(status: Boolean): TapTarget {
+        this.shouldPreformClick = status
         return this
     }
 

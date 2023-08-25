@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Typeface
+import android.os.Build
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
@@ -23,7 +24,7 @@ import kotlin.math.roundToInt
 
 
 @SuppressLint("ViewConstructor")
-class GuideView @JvmOverloads constructor(
+class GuideView @JvmOverloads internal constructor(
     context: Context,
     internal val tapTarget: TapTarget,
     private val parent: ViewManager? = null
@@ -71,6 +72,10 @@ class GuideView @JvmOverloads constructor(
     private val textRectBounds = RectF()
 
     private fun initTapTarget() {
+        viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            setLayerType(LAYER_TYPE_SOFTWARE, null)
+        }
         updateTextLayouts()
         tapTarget.onReady {
             staticTargetBounds.set(tapTarget.bounds)
@@ -150,7 +155,9 @@ class GuideView @JvmOverloads constructor(
 
     private fun updateTextLayouts() {
         val titleWidth = titlePaint.measureText(tapTarget.title.toString()).roundToInt()
-        val textWidth = titleWidth.coerceAtMost(tapTarget.textWidth)
+        val descriptionWidth = descriptionPaint.measureText(tapTarget.description.toString()).roundToInt()
+        val textMaxWidth = titleWidth.coerceAtLeast(descriptionWidth)
+        val textWidth = textMaxWidth.coerceAtMost(tapTarget.textWidth)
         if (textWidth <= 0) return
         titleLayout = StaticLayout.Builder
             .obtain(tapTarget.title, 0, tapTarget.title.length, titlePaint, textWidth)
@@ -215,7 +222,6 @@ class GuideView @JvmOverloads constructor(
     }
 
     private fun removeFromParent() {
-        viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
         parent?.removeView(this)
     }
 
