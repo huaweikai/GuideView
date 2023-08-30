@@ -7,23 +7,23 @@ import androidx.annotation.UiThread
 import java.util.LinkedList
 import java.util.Queue
 
-class GuideSequence: GuideListener {
+open class GuideSequence: GuideListener {
 
-    private val targets: Queue<TapTarget> = LinkedList()
+    protected val targets: Queue<TapTarget> = LinkedList()
 
     private var activity: Activity? = null
 
     private var dialog: Dialog? = null
 
-    private var isActive: Boolean = false
+    internal var isActive: Boolean = false
 
-    private var listener: Listener? = null
+    protected var listener: Listener? = null
 
     private var considerOuterCircleCanceled = false
 
     private var continueOnCancel = false
 
-    private var currentView: GuideView? = null
+    protected var currentView: GuideView? = null
 
     constructor(activity: Activity?) {
         this.activity = activity
@@ -91,15 +91,14 @@ class GuideSequence: GuideListener {
         start()
     }
 
-    private fun showNext() {
+    protected open fun showNext() {
         val target = targets.poll()
         if (target == null) {
             currentView = null
             listener?.onSequenceFinish()
             return
         }
-        currentView = activity?.let { it.showGuideView(target.setGuideListener(this)) }
-        currentView = dialog?.let { it.showGuideView(target.setGuideListener(this)) }
+        showTapTarget(target)
     }
 
     override fun clickTarget(view: GuideView) {
@@ -117,6 +116,15 @@ class GuideSequence: GuideListener {
 
     override fun clickOther(view: GuideView) {
         if (considerOuterCircleCanceled) dismiss(view)
+    }
+
+    protected fun showTapTarget(tapTarget: TapTarget) {
+        activity?.let {
+            currentView = it.showGuideView(tapTarget.setGuideListener(this))
+        }
+        dialog?.let {
+            currentView = it.showGuideView(tapTarget.setGuideListener(this))
+        }
     }
 
     interface Listener {

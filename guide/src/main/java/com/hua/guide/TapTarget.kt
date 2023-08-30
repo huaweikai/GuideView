@@ -112,6 +112,8 @@ class TapTarget {
 
     internal var shadowRadius = radius + 4.dp
 
+    internal var tips: CharSequence? = null
+
     var shouldPreformClick = true
         internal set
 
@@ -155,8 +157,9 @@ class TapTarget {
         return this
     }
 
-    fun setCancelable(cancelable: Boolean): TapTarget {
+    fun setCancelable(cancelable: Boolean, tips: CharSequence? = null): TapTarget {
         this.cancelable = cancelable
+        this.tips = tips
         return this
     }
 

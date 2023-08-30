@@ -18,6 +18,7 @@ import android.view.View
 import android.view.ViewManager
 import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.Toast
 import androidx.core.animation.doOnEnd
 import androidx.core.graphics.withSave
 import kotlin.math.roundToInt
@@ -47,6 +48,9 @@ class GuideView @JvmOverloads internal constructor(
         if (tapTarget.cancelable) {
             dismiss()
         } else {
+            tapTarget.tips?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
             tapTarget.listener?.clickOther(this)
         }
     }

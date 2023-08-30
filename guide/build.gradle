@@ -55,6 +55,7 @@ dependencies {
     api libs.core.ktx
     api libs.appcompat
     api libs.material
+    implementation libs.lifecycle
 }
 
 tasks.register('androidSourcesJar', Jar) {
