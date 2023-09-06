@@ -6,6 +6,7 @@ import android.widget.ScrollView
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.coroutineScope
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 
 class AutoScrollGuideSequence: GuideSequence {
@@ -36,6 +37,11 @@ class AutoScrollGuideSequence: GuideSequence {
 
     private suspend fun scrollToTarget(target: TapTarget) {
         val view = target.view ?: return
+        if (view is RecyclerView) {
+            val itemView = view.findItemViewByRecyclerView(target.indexAndView)
+            target.view = itemView
+            return
+        }
         val pParent = view.parent.parent ?: return
         when (pParent) {
             is NestedScrollView -> {

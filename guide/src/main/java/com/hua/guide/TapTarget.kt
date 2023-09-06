@@ -19,6 +19,11 @@ class TapTarget {
     internal var bounds: Rect = Rect()
     private var icon: Drawable? = null
 
+    /**
+     * 用于目标是Recyclerview时，查找到对应的item
+     */
+    var indexAndView: Pair<Int, Int?>? = null
+
     @JvmOverloads
     constructor(
         view: View,
@@ -195,6 +200,11 @@ class TapTarget {
 
     fun setShouldPreformClick(status: Boolean): TapTarget {
         this.shouldPreformClick = status
+        return this
+    }
+
+    fun setIndexAndView(indexAndView: Pair<Int, Int?>? = null): TapTarget {
+        this.indexAndView = indexAndView
         return this
     }
 

@@ -3,7 +3,11 @@ package com.hua.guide
 
 import android.app.Activity
 import android.app.Dialog
+import android.widget.PopupWindow
 import androidx.annotation.UiThread
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewTreeLifecycleOwner
+import java.lang.RuntimeException
 import java.util.LinkedList
 import java.util.Queue
 
@@ -14,6 +18,8 @@ open class GuideSequence: GuideListener {
     private var activity: Activity? = null
 
     private var dialog: Dialog? = null
+
+    private var popupWindow: PopupWindow? = null
 
     internal var isActive: Boolean = false
 
@@ -33,6 +39,19 @@ open class GuideSequence: GuideListener {
     constructor(dialog: Dialog?) {
         this.dialog = dialog
         this.activity = null
+    }
+
+    /**
+     * @param lifecycleOwner 用于自动翻页查找view，因为是在协程里面做的，所以最好是有一个关联页面的Lifecycle
+     */
+    constructor(popupWindow: PopupWindow?, lifecycleOwner: LifecycleOwner) {
+        this.popupWindow = popupWindow
+        val view = popupWindow?.contentView ?: throw RuntimeException(
+            "popupWindow contentView is null, please check your popupWindow"
+        )
+        ViewTreeLifecycleOwner.set(view, lifecycleOwner)
+        this.activity = null
+        this.dialog = null
     }
 
     fun targets(targets: Iterable<TapTarget>): GuideSequence {
@@ -123,6 +142,9 @@ open class GuideSequence: GuideListener {
             currentView = it.showGuideView(tapTarget.setGuideListener(this))
         }
         dialog?.let {
+            currentView = it.showGuideView(tapTarget.setGuideListener(this))
+        }
+        popupWindow?.let {
             currentView = it.showGuideView(tapTarget.setGuideListener(this))
         }
     }
