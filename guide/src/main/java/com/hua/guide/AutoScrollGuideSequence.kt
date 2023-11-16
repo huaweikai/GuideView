@@ -2,11 +2,8 @@ package com.hua.guide
 
 import android.app.Activity
 import android.app.Dialog
-import android.widget.ScrollView
-import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.coroutineScope
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 
 class AutoScrollGuideSequence: GuideSequence {
@@ -28,29 +25,11 @@ class AutoScrollGuideSequence: GuideSequence {
             showTapTarget(target)
         } else {
             ViewTreeLifecycleOwner.get(view)?.lifecycle?.coroutineScope?.launch {
-                scrollToTarget(target)
+                target.scrollToTarget()
+                // 当队列已经cancel了，就不要再继续了
                 if (!this@AutoScrollGuideSequence.isActive) { return@launch }
                 showTapTarget(target)
-            }
-        }
-    }
-
-    private suspend fun scrollToTarget(target: TapTarget) {
-        val view = target.view ?: return
-        if (view is RecyclerView) {
-            val itemView = view.findItemViewByRecyclerView(target.indexAndView)
-            target.view = itemView
-            return
-        }
-        val pParent = view.parent.parent ?: return
-        when (pParent) {
-            is NestedScrollView -> {
-                pParent.findAndScrollView(view)
-            }
-            is ScrollView -> {
-                pParent.findAndScrollView(view)
-            }
-            else -> return
+            } ?: showTapTarget(target)
         }
     }
 

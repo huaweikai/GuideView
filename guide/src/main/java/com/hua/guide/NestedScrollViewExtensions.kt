@@ -3,12 +3,33 @@ package com.hua.guide
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.widget.ScrollView
 import androidx.core.widget.NestedScrollView
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+
+suspend fun TapTarget.scrollToTarget() {
+    val view = view ?: return
+    if (view is RecyclerView) {
+        val itemView = view.findItemViewByRecyclerView(indexAndView)
+        this.view = itemView
+        return
+    }
+    val pParent = view.parent.parent ?: return
+    when (pParent) {
+        is NestedScrollView -> {
+            pParent.findAndScrollView(view)
+        }
+        is ScrollView -> {
+            pParent.findAndScrollView(view)
+        }
+        else -> return
+    }
+}
 
 /**
  * 根据NestedScrollView内部方法，计算出最终滑动的距离，用于判断滑动结束

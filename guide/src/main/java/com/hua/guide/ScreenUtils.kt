@@ -1,5 +1,7 @@
+@file:Suppress("InternalInsetResource", "DiscouragedApi")
 package com.hua.guide
 
+import android.content.Context
 import android.content.res.Resources
 
 val screenWidth: Int
@@ -28,5 +30,16 @@ val screenStatus: ScreenStatus
             smallWidth >= 720 -> ScreenStatus.Large
             smallWidth >= 600 -> ScreenStatus.Medium
             else -> ScreenStatus.Small
+        }
+    }
+
+val Context.statusHeight: Int
+    get() {
+        val resourceId =
+            Resources.getSystem().getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) {
+            resources.getDimensionPixelSize(resourceId)
+        } else {
+            0
         }
     }

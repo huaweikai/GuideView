@@ -3,6 +3,7 @@ package com.hua.guide
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
@@ -21,6 +22,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Toast
 import androidx.core.animation.doOnEnd
 import androidx.core.graphics.withSave
+import androidx.core.view.updateLayoutParams
 import kotlin.math.roundToInt
 
 
@@ -280,4 +282,20 @@ class GuideView @JvmOverloads internal constructor(
                 this.descriptionLayout ?: return titleLayout.width
             return titleLayout.width.coerceAtLeast(descriptionLayout.width)
         }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        if (this.parent == null) {
+            when (val viewParent = getParent()) {
+                is ViewManager -> {
+                    layoutParams.height = context.guideHeight
+                    viewParent.updateViewLayout(this, layoutParams)
+                }
+                else -> updateLayoutParams { height = context.guideHeight }
+            }
+        } else {
+            layoutParams.height = context.guideHeight
+            this.parent.updateViewLayout(this, layoutParams)
+        }
+    }
 }
