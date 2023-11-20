@@ -83,7 +83,10 @@ open class GuideSequence: GuideListener {
 
     @UiThread
     fun start() {
-        if (targets.isEmpty() || isActive) return
+        if (targets.isEmpty()) {
+            listener?.onSequenceFinish()
+        }
+        if (isActive) return
         isActive = true
         showNext()
     }

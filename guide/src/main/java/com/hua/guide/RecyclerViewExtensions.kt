@@ -3,6 +3,7 @@ package com.hua.guide
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -32,11 +33,26 @@ suspend fun RecyclerView.findItemViewByRecyclerView(
 
 private suspend fun RecyclerView.findViewByPosition(position: Int): View? {
     return suspendCancellableCoroutine {
-        val firstVisibleIndex =
-            (layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition() ?: 0
-        val lastVisibleIndex =
-            (layoutManager as? LinearLayoutManager)?.findLastVisibleItemPosition() ?: 0
-        if (position in firstVisibleIndex .. lastVisibleIndex) {
+        val layoutManager = layoutManager
+        val (firstIndex, lastIndex) = when (layoutManager) {
+            is LinearLayoutManager -> {
+                Pair(layoutManager.findFirstVisibleItemPosition(), layoutManager.findLastVisibleItemPosition())
+            }
+            is StaggeredGridLayoutManager -> {
+                val count = layoutManager.spanCount
+                val firstPositionArray = IntArray(count)
+                layoutManager.findFirstVisibleItemPositions(firstPositionArray)
+                val lastPositionArray = IntArray(count)
+                layoutManager.findLastVisibleItemPositions(lastPositionArray)
+                Pair(firstPositionArray.firstOrNull() ?: 0, lastPositionArray.firstOrNull() ?: 0)
+            }
+            else -> Pair(-1, -1)
+        }
+        if (firstIndex == -1 && lastIndex == -1) {
+            it.resume(this)
+            return@suspendCancellableCoroutine
+        }
+        if (position in firstIndex .. lastIndex) {
             it.resume(findViewHolderForAdapterPosition(position)?.itemView)
         } else {
             stopScroll()
