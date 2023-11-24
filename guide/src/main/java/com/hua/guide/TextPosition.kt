@@ -218,9 +218,8 @@ private fun RectF.canDropHorizontal(
     textHeight: Int
 ): TextPosition {
     val widthFiller = textWidth + textPadding * 2 + marginTarget
-    if (top - edgeLength < 0 || bottom + edgeLength > screenHeight) {
-        return TextPosition.Empty
-    }
+    val textBottom = centerX() + textPadding + textHeight / 2
+    if (textBottom > screenHeight) return TextPosition.Empty
     if (right + widthFiller < screenWidth) {
         return TextPosition.Right(this, textPadding, marginTarget, textWidth, textHeight)
     }
@@ -237,7 +236,14 @@ private fun RectF.canDropVertical(
     textHeight: Int
 ): TextPosition {
     val heightFiller = textHeight + textPadding * 2 + marginTarget
-    if (bottom + edgeLength + heightFiller < screenHeight) {
+    val widthFiller = textWidth + textPadding * 2 + marginTarget
+    val textRight = centerX() + widthFiller / 2
+    val textLeft = centerX() - widthFiller / 2
+    val textBottom = bottom + heightFiller
+    if (textRight > screenWidth || textLeft < 0) {
+        return TextPosition.Empty
+    }
+    if (textBottom < screenHeight) {
         return TextPosition.Bottom(this, textPadding, marginTarget, textWidth, textHeight)
     }
     if (top - edgeLength - heightFiller > 0) {
