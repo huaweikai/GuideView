@@ -1,10 +1,12 @@
 package com.hua.guide
 
 import android.view.View
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.core.view.doOnLayout
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
+import java.lang.NullPointerException
 import kotlin.coroutines.resume
 
 /**
@@ -32,39 +34,42 @@ suspend fun RecyclerView.findItemViewByRecyclerView(
 }
 
 private suspend fun RecyclerView.findViewByPosition(position: Int): View? {
-    return suspendCancellableCoroutine {
-        val layoutManager = layoutManager
-        val (firstIndex, lastIndex) = when (layoutManager) {
-            is LinearLayoutManager -> {
-                Pair(layoutManager.findFirstVisibleItemPosition(), layoutManager.findLastVisibleItemPosition())
-            }
-            is StaggeredGridLayoutManager -> {
-                val count = layoutManager.spanCount
-                val firstPositionArray = IntArray(count)
-                layoutManager.findFirstVisibleItemPositions(firstPositionArray)
-                val lastPositionArray = IntArray(count)
-                layoutManager.findLastVisibleItemPositions(lastPositionArray)
-                Pair(firstPositionArray.firstOrNull() ?: 0, lastPositionArray.firstOrNull() ?: 0)
-            }
-            else -> Pair(-1, -1)
-        }
-        if (firstIndex == -1 && lastIndex == -1) {
-            it.resume(this)
-            return@suspendCancellableCoroutine
-        }
-        if (position in firstIndex .. lastIndex) {
-            it.resume(findViewHolderForAdapterPosition(position)?.itemView)
-        } else {
-            stopScroll()
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        removeOnScrollListener(this)
-                        it.resume(findViewHolderForAdapterPosition(position)?.itemView)
-                    }
+    var view = findViewHolderForAdapterPosition(position)?.itemView
+    if (view == null && childCount <= 0) {
+        // 500毫秒内如果没有摆放完就抛出异常
+        val result = withTimeoutOrNull(500L) {
+            while (true) {
+                delay(100L)
+                val hasChild = suspendCancellableCoroutine<Boolean> { scope ->
+                    doOnLayout { scope.resume(childCount > 0) }
                 }
-            })
-            smoothScrollToPosition(position)
+                if (hasChild) break
+            }
         }
+        if (result == null) {
+            if (context.isDebug()) throw NullPointerException("recyclerView always layout error")
+            return null
+        }
+        // 然后再次获取View
+        view = findViewHolderForAdapterPosition(position)?.itemView
+    }
+    if (view != null && view.top >= 0) {
+        return view
+    }
+    return scrollToPositionReturnView(position)
+}
+
+private suspend fun RecyclerView.scrollToPositionReturnView(position: Int): View? {
+    return suspendCancellableCoroutine {
+        stopScroll()
+        addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    removeOnScrollListener(this)
+                    it.resume(findViewHolderForAdapterPosition(position)?.itemView)
+                }
+            }
+        })
+        doOnLayout { smoothScrollToPosition(position) }
     }
 }

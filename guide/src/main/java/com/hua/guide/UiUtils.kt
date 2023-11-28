@@ -4,6 +4,7 @@ package com.hua.guide
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.res.Resources
 import android.util.TypedValue
 import androidx.annotation.FloatRange
@@ -34,4 +35,10 @@ fun Int.setAlpha(
     @FloatRange(from = 0.0, to = 1.0) alpha: Float
 ): Int {
     return ((this ushr 24) * alpha).toInt() shl 24 or (this and 0x00FFFFFF)
+}
+
+fun Context.isDebug(): Boolean {
+    return runCatching {
+        (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+    }.getOrNull() ?: false
 }
